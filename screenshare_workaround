@@ -1,0 +1,12 @@
+#!/bin/env sh
+
+trap exit_routine SIGINT
+exit_routine() {
+    sudo rmmod v4l2loopback
+    echo -e "\nv4l2loopback module unloaded"
+    exit
+}
+
+sudo modprobe v4l2loopback video_nr=7  card_label="virtual desktop"
+echo -e "\nv4l2loopback module loaded\n"
+wf-recorder --muxer=v4l2 --codec=rawvideo  -e -t --file=/dev/video7 -x yuv420p
