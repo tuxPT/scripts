@@ -1,0 +1,36 @@
+#!/bin/env sh
+
+FILE="$HOME/.config/course_zoom/courses.csv"
+
+if [[ ! -f "$FILE" ]]; then
+    echo "Error 1:
+    '${FILE}' does not exist.
+    Create one in '$HOME/.config/course_zoom' with the name 'courses.csv'.
+    Put this header at the top 'course,id,pwd' and add courses on the following lines."
+    exit 1
+fi
+
+COURSES=$(cat "$FILE" | sed '1d')
+
+SELECT=$(echo "$COURSES" | cut -d',' -f1 | rofi -dmenu)
+
+echo "SELECTED:  '$SELECT'"
+
+if [[ -n "$SELECT"  ]]; then
+    COURSE=($(echo "$COURSES" | grep "^${SELECT}" | sed -e "s/ //g" |sed -e "s/,/ /g"))
+    echo "ROOM:      ${COURSE[1]}"
+    echo "PASSWORD:  ${COURSE[2]}"
+else
+    exit
+fi
+
+ROOM_LINK="zoommtg://videoconf-colibri.zoom.us/join?action=join&confno=${COURSE[1]}"
+
+if [[ -n "${COURSE[2]}" ]]; then
+    ROOM_LINK="${ROOM_LINK}&pwd=${COURSE[2]}"
+fi
+echo "ROOM_LINK: '$ROOM_LINK'"
+
+zoom "${ROOM_LINK}" &
+disown
+
