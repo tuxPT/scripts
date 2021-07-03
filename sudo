@@ -1,0 +1,22 @@
+#!/bin/sh
+# sudo wrapper based on doas
+
+FLAGS=""
+
+while getopts "knv" arg; 
+do
+    case ${arg} in
+        k) FLAGS="${FLAGS} -L";;
+        n) FLAGS="${FLAGS} -n";;
+        v) FLAGS="${FLAGS} -v";;
+    esac
+done
+
+shift $((OPTIND-1))
+
+if [ -z "$1" ]
+then
+	exec doas echo
+else
+	exec doas $FLAGS $@
+fi
